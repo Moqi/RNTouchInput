@@ -1,7 +1,7 @@
 RNTouchInput
 ============
 
-TouchInput for Unity3d
+TouchInput for Unity3d.
 
 This TouchInput.cs can use in PC,  iOS and Android.<br>
 You can easily receive all kinds of touch message in your code.  Just like to use MonoBehaviour.OnMouseDown().<br>
