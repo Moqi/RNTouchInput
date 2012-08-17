@@ -10,4 +10,4 @@ Deal with the mouse message and touch message is using the same method.<br>
 Support both JS and C#. <br>
 Support multi fingers.<br>
 Support multi cameras.<br>
-<a href="http://blog.sina.com.cn/u/2840185437">Visit my blog to learn more!</a>
+<a href="http://rntouchinput.blogspot.com/">Visit my blog to learn more!</a>
