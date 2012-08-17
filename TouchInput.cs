@@ -1,5 +1,5 @@
 ﻿// Copyright (c) 2012 Xilin Chen (RN)
-// Please direct any bugs/comments/suggestions to http://blog.sina.com.cn/u/2840185437
+// Please direct any bugs/comments/suggestions to http://rntouchinput.blogspot.com/
 
 using UnityEngine;
 using System.Reflection;
@@ -22,7 +22,7 @@ using System.Reflection;
 ///                        Send the onTouchEnter and onTouchExit message if the touch enter or exit the GameObject.
 ///                        
 /// cameras : From the camera to send a touch message.
-///           set the Main Camera if this member variables is None.
+///           auto set the Main Camera if this member variables is None.
 /// 
 /// 
 /// --------------------------------------------------
@@ -36,6 +36,10 @@ using System.Reflection;
 /// }
 /// 
 /// void onTouchUpAsButton(Vector3 position)
+/// {
+/// }
+/// 
+/// void onDoubleClick(Vector3 position)
 /// {
 /// }
 /// 
@@ -89,7 +93,15 @@ public class TouchInput : MonoBehaviour
     /// Enable the enter and exit touch.
     /// Send the onTouchEnter and onTouchExit message if the touch enter or exit the GameObject.
     /// </summary>
-    public bool touchEnterExitEnable = false;
+    //public bool touchEnterExitEnable = false;
+    /// <summary>
+    /// double click enable if doubleClickInterval > 0.0f
+    /// </summary>
+    public float doubleClickInterval = -1.0f;
+    float firstClickTime = 0.0f;
+    GameObject firstClickObject;
+
+
     /// <summary>
     /// From the camera to send a touch message.
     /// Set the Main Camera if this member variables is None.
@@ -174,7 +186,7 @@ public class TouchInput : MonoBehaviour
 
 
         //
-        if (touchEnterExitEnable)
+        //if (touchEnterExitEnable)
         {
             _touchEEGOs = new GameObject[] 
             {
@@ -264,6 +276,9 @@ public class TouchInput : MonoBehaviour
     {
         foreach (var c in cameras)
         {
+            if (c.enabled == false)
+                continue;
+
             //
             currentCamera = c;
             ray = currentCamera.ScreenPointToRay(position);
@@ -287,6 +302,10 @@ public class TouchInput : MonoBehaviour
     /// </summary>
     void onMoved()
     {
+        //
+        touchEnterExit();
+
+        //
         var tgo = _touchGOs[fingerId];
         if (tgo != null)
         {
@@ -294,9 +313,6 @@ public class TouchInput : MonoBehaviour
             ray = currentCamera.ScreenPointToRay(position);
             dispatchMessage(tgo, "onTouchMove", position);
         }
-
-        //
-        touchEnterExit();
     }
 
 
@@ -306,7 +322,7 @@ public class TouchInput : MonoBehaviour
     void onEnded()
     {
         //
-        if (touchEnterExitEnable)
+        //if (touchEnterExitEnable)
         {
             var go = _touchEEGOs[fingerId];
             if (go != null)
@@ -336,8 +352,20 @@ public class TouchInput : MonoBehaviour
             var go = raycastHit.collider.gameObject;
             if (go == tgo)
             {
-                dispatchMessage(go, "onTouchUpAsButton", position);
+                if (firstClickObject == go && Time.realtimeSinceStartup - firstClickTime <= doubleClickInterval)
+                {
+                    dispatchMessage(go, "onDoubleClick", position);
+                }
+                else
+                {
+                    dispatchMessage(go, "onTouchUpAsButton", position);
+                }
+
                 dispatchMessage(go, "onTouchUp", position);
+
+                //
+                firstClickTime = Time.realtimeSinceStartup;
+                firstClickObject = go;
                 return;
             }
         }
@@ -354,7 +382,7 @@ public class TouchInput : MonoBehaviour
     /// </summary>
     void touchEnterExit()
     {
-        if (touchEnterExitEnable)
+        //if (touchEnterExitEnable)
         {
             var last_go = _touchEEGOs[fingerId];
             if (last_go != null)
@@ -389,6 +417,9 @@ public class TouchInput : MonoBehaviour
             {
                 foreach (var c in cameras)
                 {
+                    if (c.enabled == false)
+                        continue;
+
                     //
                     currentCamera = c;
                     ray = currentCamera.ScreenPointToRay(position);
